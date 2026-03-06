@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatEther, getAddress } from "viem";
 import { mainnet } from "wagmi/chains";
 import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
@@ -10,6 +10,15 @@ function formatAddress(address: string) {
   return `${normalized.slice(0, 6)}...${normalized.slice(-4)}`;
 }
 
+type WalletToken = {
+  contractAddress: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  logo?: string;
+  balance: string;
+};
+
 export default function WalletPanel() {
   const { address, chain, chainId, isConnected } = useAccount();
   const { connectAsync, connectors, error: connectError, isPending } = useConnect();
@@ -17,6 +26,9 @@ export default function WalletPanel() {
   const [connectHint, setConnectHint] = useState<string | null>(null);
   const [isAwaitingWallet, setIsAwaitingWallet] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [tokens, setTokens] = useState<WalletToken[]>([]);
+  const [isTokensLoading, setIsTokensLoading] = useState(false);
+  const [tokensError, setTokensError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -51,6 +63,43 @@ export default function WalletPanel() {
   });
 
   const connectDisabled = !isMounted || isPending || isAwaitingWallet || !metaMaskConnector || !hasMetaMask;
+  const canFetchTokens = Boolean(showConnectedWallet && address && chainId === mainnet.id);
+
+  const fetchTokens = useCallback(async () => {
+    if (!canFetchTokens || !address) {
+      setTokens([]);
+      setTokensError(null);
+      return;
+    }
+
+    setIsTokensLoading(true);
+    setTokensError(null);
+
+    try {
+      const response = await fetch(`/api/tokens?address=${address}`, {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      const data = (await response.json()) as { tokens?: WalletToken[]; error?: string };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Unable to fetch token balances.");
+      }
+
+      setTokens(Array.isArray(data.tokens) ? data.tokens : []);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to fetch token balances.";
+      setTokens([]);
+      setTokensError(message);
+    } finally {
+      setIsTokensLoading(false);
+    }
+  }, [address, canFetchTokens]);
+
+  useEffect(() => {
+    void fetchTokens();
+  }, [fetchTokens]);
 
   async function handleConnect() {
     if (!metaMaskConnector || connectDisabled) {
@@ -120,9 +169,12 @@ export default function WalletPanel() {
           <button
             className="cursor-pointer rounded-full border border-white/40 bg-transparent px-4 py-2.5 text-[0.92rem] font-semibold text-[#f4f8ff]"
             type="button"
-            onClick={() => refetch()}
+            onClick={() => {
+              refetch();
+              void fetchTokens();
+            }}
           >
-            Refresh Balance
+            Refresh Data
           </button>
         ) : null}
       </div>
@@ -161,6 +213,36 @@ export default function WalletPanel() {
 
       {unsupportedNetwork ? <p className="mt-3 text-sm text-[#ffd690]">Switch to Ethereum Mainnet for supported behavior.</p> : null}
       {balanceError ? <p className="mt-3 text-sm text-[#ff9b9b]">{balanceError.message}</p> : null}
+
+      {showConnectedWallet ? (
+        <div className="mt-4 rounded-xl border border-white/15 bg-white/3 p-4">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-base font-semibold">ERC-20 Tokens</h3>
+            <span className="text-xs text-white/70">{tokens.length} found</span>
+          </div>
+
+          {chainId !== mainnet.id ? <p className="text-sm text-[#ffd690]">Token list is shown only on Ethereum Mainnet.</p> : null}
+          {chainId === mainnet.id && isTokensLoading ? <p className="text-sm text-white/80">Loading tokens...</p> : null}
+          {chainId === mainnet.id && tokensError ? <p className="text-sm text-[#ff9b9b]">{tokensError}</p> : null}
+          {chainId === mainnet.id && !isTokensLoading && !tokensError && tokens.length === 0 ? (
+            <p className="text-sm text-white/80">No ERC-20 token balances found for this wallet.</p>
+          ) : null}
+
+          {chainId === mainnet.id && tokens.length > 0 ? (
+            <ul className="mt-3 grid gap-2">
+              {tokens.map((token) => (
+                <li key={token.contractAddress} className="grid grid-cols-[1fr_auto] gap-3 rounded-lg border border-white/10 bg-white/[0.04] p-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-white">{token.name}</p>
+                    <p className="truncate text-xs text-white/70">{token.symbol} · {token.contractAddress}</p>
+                  </div>
+                  <p className="text-right font-mono text-sm text-white">{token.balance}</p>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }
