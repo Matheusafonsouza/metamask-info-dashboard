@@ -20,7 +20,9 @@ export default function ConnectionHeader() {
   );
   const connected = isMounted && isConnected && Boolean(address);
 
-  const title = connected ? "Wallet connected. Live account data is ready." : "Connect MetaMask and show live wallet info.";
+  const title = connected
+    ? "Wallet connected. Live account data is ready."
+    : "Connect MetaMask and show live wallet info.";
 
   const subtitle = useMemo(() => {
     if (connected && address) {
@@ -32,8 +34,12 @@ export default function ConnectionHeader() {
 
   return (
     <div className="rounded-2xl border border-white/15 bg-linear-to-br from-[rgba(17,31,68,0.95)] to-[rgba(15,56,73,0.95)] p-6 max-[700px]:p-4">
-      <p className="mb-2 text-[0.78rem] tracking-[0.09em] text-[#8ddfcb] uppercase">Web3 MVP</p>
-      <h1 className="text-[clamp(1.6rem,4vw,2.5rem)] leading-[1.15] text-balance">{title}</h1>
+      <p className="mb-2 text-[0.78rem] tracking-[0.09em] text-[#8ddfcb] uppercase">
+        Web3 MVP
+      </p>
+      <h1 className="text-[clamp(1.6rem,4vw,2.5rem)] leading-[1.15] text-balance">
+        {title}
+      </h1>
       <p className="mt-3 max-w-[62ch] leading-6 text-white/90">{subtitle}</p>
     </div>
   );
