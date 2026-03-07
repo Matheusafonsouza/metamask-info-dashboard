@@ -56,6 +56,7 @@ NEXT_PUBLIC_ETH_MAINNET_ENDPOINT=https://ethereum.publicnode.com
 ## Project Structure
 
 - `src/lib/web3/config.ts`: wagmi/chain/connectors setup
+- `src/lib/api/`: client-side backend request helpers (auth/tokens)
 - `src/lib/siwe/`: SIWE nonce/session/config helpers
 - `src/components/Web3Provider.tsx`: app-level web3 providers
 - `src/components/WalletPanel.tsx`: connect/disconnect + wallet info UI

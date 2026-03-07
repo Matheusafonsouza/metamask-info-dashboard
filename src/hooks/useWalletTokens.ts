@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { fetchWalletTokensByAddress } from "@/lib/api/tokens";
 import type { WalletToken } from "@/types/wallet";
 
 type UseWalletTokensParams = {
@@ -24,21 +25,8 @@ export function useWalletTokens({ address, enabled }: UseWalletTokensParams) {
     setTokensError(null);
 
     try {
-      const response = await fetch(`/api/tokens?address=${address}`, {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      const data = (await response.json()) as {
-        tokens?: WalletToken[];
-        error?: string;
-      };
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "Unable to fetch token balances.");
-      }
-
-      setTokens(Array.isArray(data.tokens) ? data.tokens : []);
+      const data = await fetchWalletTokensByAddress(address);
+      setTokens(data);
     } catch (error) {
       const message =
         error instanceof Error

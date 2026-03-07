@@ -3,8 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SiweMessage } from "siwe";
 import { useSignMessage } from "wagmi";
+import {
+  fetchSiweSession,
+  logoutSiweSession,
+  requestSiweNonce,
+  verifySiweSignature,
+} from "@/lib/api/auth";
 import { SIWE_STATEMENT } from "@/lib/siwe/config";
-import type { SessionResponse, SiweSession } from "@/types/auth";
+import type { SiweSession } from "@/types/auth";
 
 type UseSiweAuthParams = {
   address?: string;
@@ -24,16 +30,7 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
     setIsSessionLoading(true);
 
     try {
-      const response = await fetch("/api/auth/session", {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      const data = (await response.json()) as SessionResponse;
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "Unable to load authentication session.");
-      }
+      const data = await fetchSiweSession();
 
       setSession(data.authenticated && data.session ? data.session : null);
     } catch (error) {
@@ -62,19 +59,7 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
     setIsSigningIn(true);
 
     try {
-      const nonceResponse = await fetch("/api/auth/nonce", {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      const nonceData = (await nonceResponse.json()) as {
-        nonce?: string;
-        error?: string;
-      };
-
-      if (!nonceResponse.ok || !nonceData.nonce) {
-        throw new Error(nonceData.error ?? "Unable to request SIWE nonce.");
-      }
+      const nonce = await requestSiweNonce();
 
       const message = new SiweMessage({
         domain: window.location.host,
@@ -83,24 +68,12 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
         uri: window.location.origin,
         version: "1",
         chainId,
-        nonce: nonceData.nonce,
+        nonce,
       }).prepareMessage();
 
       const signature = await signMessageAsync({ message });
 
-      const verifyResponse = await fetch("/api/auth/verify", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ message, signature }),
-      });
-
-      const verifyData = (await verifyResponse.json()) as SessionResponse;
-
-      if (!verifyResponse.ok) {
-        throw new Error(verifyData.error ?? "SIWE verification failed.");
-      }
+      await verifySiweSignature({ message, signature });
 
       await refreshSession();
       return true;
@@ -118,13 +91,7 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
     setAuthError(null);
 
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        throw new Error("Unable to sign out.");
-      }
+      await logoutSiweSession();
 
       await refreshSession();
     } catch (error) {
