@@ -33,14 +33,40 @@ export default function ConnectionHeader() {
   }, [connected, address]);
 
   return (
-    <div className="rounded-2xl border border-white/15 bg-linear-to-br from-[rgba(17,31,68,0.95)] to-[rgba(15,56,73,0.95)] p-6 max-[700px]:p-4">
-      <p className="mb-2 text-[0.78rem] tracking-[0.09em] text-[#8ddfcb] uppercase">
-        Web3 MVP
-      </p>
-      <h1 className="text-[clamp(1.6rem,4vw,2.5rem)] leading-[1.15] text-balance">
+    <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-linear-to-br from-[rgba(20,36,79,0.96)] to-[rgba(13,64,84,0.95)] p-6 shadow-[0_20px_55px_-24px_rgba(0,0,0,0.9)] max-[700px]:p-4">
+      <div className="pointer-events-none absolute right-4 top-4 h-24 w-24 rounded-full bg-[#74ffd4]/10 blur-2xl" />
+
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <p className="text-[0.72rem] tracking-[0.12em] text-[#8ddfcb] uppercase">
+          Web3 MVP
+        </p>
+        <span
+          className={`rounded-full border px-2.5 py-1 text-[0.65rem] font-semibold tracking-[0.08em] uppercase ${
+            connected
+              ? "border-[#36d399]/45 bg-[#36d399]/15 text-[#aff4dd]"
+              : "border-white/20 bg-white/8 text-white/75"
+          }`}
+        >
+          {connected ? "Connected" : "Awaiting Wallet"}
+        </span>
+      </div>
+
+      <h1 className="text-[clamp(1.7rem,4vw,2.65rem)] leading-[1.1] text-balance">
         {title}
       </h1>
-      <p className="mt-3 max-w-[62ch] leading-6 text-white/90">{subtitle}</p>
+      <p className="mt-3 max-w-[64ch] leading-6 text-white/90">{subtitle}</p>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        <span className="rounded-full border border-white/18 bg-white/6 px-3 py-1 text-xs text-white/85">
+          SIWE Enabled
+        </span>
+        <span className="rounded-full border border-white/18 bg-white/6 px-3 py-1 text-xs text-white/85">
+          Ethereum Mainnet
+        </span>
+        <span className="rounded-full border border-white/18 bg-white/6 px-3 py-1 text-xs text-white/85">
+          Live Token Index
+        </span>
+      </div>
     </div>
   );
 }

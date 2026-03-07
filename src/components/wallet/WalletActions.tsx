@@ -50,7 +50,7 @@ export default function WalletActions({
   return (
     <div className="mb-4 flex flex-wrap gap-3">
       <button
-        className="cursor-pointer rounded-full border-0 bg-[#21c97f] px-4 py-2.5 text-[0.92rem] font-semibold text-[#03210f] disabled:cursor-not-allowed disabled:opacity-65"
+        className="cursor-pointer rounded-full border border-[#39d89b]/60 bg-linear-to-r from-[#36d399] to-[#21c97f] px-4 py-2.5 text-[0.92rem] font-semibold text-[#03210f] shadow-[0_10px_24px_-14px_rgba(52,211,153,0.9)] transition hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9bf7d4] disabled:cursor-not-allowed disabled:opacity-65"
         type="button"
         disabled={primaryDisabled}
         onClick={!showConnectedWallet ? onConnect : isAuthenticated ? onSignOut : onSignIn}
@@ -61,14 +61,14 @@ export default function WalletActions({
       {showConnectedWallet ? (
         <>
           <button
-            className="cursor-pointer rounded-full border-0 bg-[#ffd25f] px-4 py-2.5 text-[0.92rem] font-semibold text-[#3b2a00]"
+            className="cursor-pointer rounded-full border border-[#ffd25f]/60 bg-[#ffd25f] px-4 py-2.5 text-[0.92rem] font-semibold text-[#3b2a00] transition hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffe9a9]"
             type="button"
             onClick={onDisconnect}
           >
             Disconnect
           </button>
           <button
-            className="cursor-pointer rounded-full border border-white/40 bg-transparent px-4 py-2.5 text-[0.92rem] font-semibold text-[#f4f8ff]"
+            className="cursor-pointer rounded-full border border-white/35 bg-white/5 px-4 py-2.5 text-[0.92rem] font-semibold text-[#f4f8ff] transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70"
             type="button"
             onClick={onRefresh}
           >

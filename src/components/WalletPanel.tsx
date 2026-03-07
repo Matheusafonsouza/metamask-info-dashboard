@@ -71,7 +71,12 @@ export default function WalletPanel() {
       return;
     }
 
-    if (hasAutoPromptedSignInRef.current || isAuthenticated || isAuthBusy || chainId !== mainnet.id) {
+    if (
+      hasAutoPromptedSignInRef.current ||
+      isAuthenticated ||
+      isAuthBusy ||
+      chainId !== mainnet.id
+    ) {
       return;
     }
 
@@ -84,10 +89,10 @@ export default function WalletPanel() {
     session?.address.toLowerCase() !== address?.toLowerCase();
 
   return (
-    <section className="rounded-2xl border border-white/15 bg-[rgba(5,15,38,0.8)] p-6 backdrop-blur-sm max-[700px]:p-4">
-      <div className="mb-5">
+    <section className="rounded-2xl border border-white/20 bg-[linear-gradient(160deg,rgba(5,15,38,0.88),rgba(7,20,47,0.82))] p-6 shadow-[0_22px_50px_-28px_rgba(0,0,0,0.95)] backdrop-blur-sm max-[700px]:p-4">
+      <div className="mb-5 flex items-start justify-between gap-3">
         <h2 className="mb-1 text-xl font-semibold">Wallet</h2>
-        <p className="leading-6 text-white/80">
+        <p className="max-w-[48ch] leading-6 text-white/80">
           Connect MetaMask to read account and network details.
         </p>
       </div>
@@ -139,10 +144,12 @@ export default function WalletPanel() {
       ) : null}
 
       {showConnectedWallet ? (
-        <div className="mt-4 rounded-xl border border-white/15 bg-white/3 p-4">
+        <div className="mt-4 rounded-xl border border-white/15 bg-white/4 p-4 mb-4">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 className="text-base font-semibold">Authentication</h3>
-            <span className="text-xs text-white/70">
+            <h3 className="text-base font-semibold tracking-[0.02em]">
+              Authentication
+            </h3>
+            <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[0.68rem] tracking-[0.08em] text-white/78 uppercase">
               {isAuthenticated ? "Signed In" : "Not Signed In"}
             </span>
           </div>
@@ -155,13 +162,16 @@ export default function WalletPanel() {
           ) : null}
 
           {isAuthenticated ? (
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/3 px-3 py-2.5">
               <p className="text-sm text-white/80">
-                Authenticated as <span className="font-mono">{session?.address}</span>
+                Authenticated as{" "}
+                <span className="font-mono">{session?.address}</span>
               </p>
             </div>
           ) : (
-            <p className="text-sm text-white/80">Sign the SIWE message to enable authenticated features.</p>
+            <p className="text-sm text-white/80">
+              Sign once to enable authenticated features for this app session.
+            </p>
           )}
 
           {chainId !== mainnet.id ? (
@@ -169,7 +179,9 @@ export default function WalletPanel() {
               SIWE sign-in is enabled on Ethereum Mainnet only.
             </p>
           ) : null}
-          {authError ? <p className="mt-3 text-sm text-[#ff9b9b]">{authError}</p> : null}
+          {authError ? (
+            <p className="mt-3 text-sm text-[#ff9b9b]">{authError}</p>
+          ) : null}
         </div>
       ) : null}
 
