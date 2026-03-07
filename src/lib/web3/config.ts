@@ -7,7 +7,10 @@ export const supportedChains = [mainnet] as const;
 const configuredMainnetRpc = process.env.NEXT_PUBLIC_MAINNET_RPC_URL?.trim();
 const defaultMainnetRpc = "https://ethereum.publicnode.com";
 
-const mainnetRpcUrl = configuredMainnetRpc && configuredMainnetRpc.length > 0 ? configuredMainnetRpc : defaultMainnetRpc;
+const mainnetRpcUrl =
+  configuredMainnetRpc && configuredMainnetRpc.length > 0
+    ? configuredMainnetRpc
+    : defaultMainnetRpc;
 
 export const wagmiConfig = createConfig({
   chains: supportedChains,

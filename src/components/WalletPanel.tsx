@@ -88,6 +88,33 @@ export default function WalletPanel() {
     Boolean(session?.address && address) &&
     session?.address.toLowerCase() !== address?.toLowerCase();
 
+  let authStatusLabel = "Not Signed In";
+
+  if (isAuthenticated) {
+    authStatusLabel = "Signed In";
+  }
+
+  const renderAuthBody = () => {
+    if (isAuthenticated) {
+      return (
+        <div className="grid min-w-0 gap-2 rounded-lg border border-white/10 bg-white/3 px-3 py-2.5 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+          <p className="text-sm text-white/80">
+            Authenticated as{" "}
+            <span className="font-mono break-all sm:break-normal">
+              {session?.address}
+            </span>
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <p className="text-sm text-white/80">
+        Sign once to enable authenticated features for this app session.
+      </p>
+    );
+  };
+
   return (
     <section className="rounded-2xl border border-white/20 bg-[linear-gradient(160deg,rgba(5,15,38,0.88),rgba(7,20,47,0.82))] p-4 shadow-[0_22px_50px_-28px_rgba(0,0,0,0.95)] backdrop-blur-sm sm:p-6">
       <div className="mb-5 grid gap-2 sm:flex sm:items-start sm:justify-between sm:gap-3">
@@ -97,7 +124,7 @@ export default function WalletPanel() {
         </p>
       </div>
 
-      {isMounted && !hasMetaMask ? (
+      {isMounted && !hasMetaMask && (
         <div className="mb-4 grid gap-1 rounded-xl border border-[rgba(255,195,0,0.45)] bg-[rgba(255,195,0,0.12)] p-3.5">
           <p>MetaMask was not detected in this browser.</p>
           <a
@@ -109,7 +136,7 @@ export default function WalletPanel() {
             Install MetaMask
           </a>
         </div>
-      ) : null}
+      )}
 
       <WalletActions
         connectDisabled={connectDisabled}
@@ -136,54 +163,43 @@ export default function WalletPanel() {
         showConnectedWallet={showConnectedWallet}
       />
 
-      {connectError ? (
+      {connectError && (
         <p className="mt-3 text-sm text-[#ff9b9b]">{connectError.message}</p>
-      ) : null}
-      {connectHint ? (
+      )}
+      {connectHint && (
         <p className="mt-3 text-sm text-[#ffd690]">{connectHint}</p>
-      ) : null}
+      )}
 
-      {showConnectedWallet ? (
+      {showConnectedWallet && (
         <div className="mt-4 mb-4 rounded-xl border border-white/15 bg-white/4 p-3 sm:p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-base font-semibold tracking-[0.02em]">
               Authentication
             </h3>
             <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[0.68rem] tracking-[0.08em] text-white/78 uppercase">
-              {isAuthenticated ? "Signed In" : "Not Signed In"}
+              {authStatusLabel}
             </span>
           </div>
 
-          {signedInWithDifferentWallet ? (
+          {signedInWithDifferentWallet && (
             <p className="mb-3 text-sm text-[#ffd690]">
               Session belongs to another wallet. Sign out and sign in again with
               the connected address.
             </p>
-          ) : null}
-
-          {isAuthenticated ? (
-            <div className="grid min-w-0 gap-2 rounded-lg border border-white/10 bg-white/3 px-3 py-2.5 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
-              <p className="text-sm text-white/80">
-                Authenticated as{" "}
-                <span className="font-mono break-all sm:break-normal">{session?.address}</span>
-              </p>
-            </div>
-          ) : (
-            <p className="text-sm text-white/80">
-              Sign once to enable authenticated features for this app session.
-            </p>
           )}
 
-          {chainId !== mainnet.id ? (
+          {renderAuthBody()}
+
+          {chainId !== mainnet.id && (
             <p className="mt-3 text-sm text-[#ffd690]">
               SIWE sign-in is enabled on Ethereum Mainnet only.
             </p>
-          ) : null}
-          {authError ? (
+          )}
+          {authError && (
             <p className="mt-3 text-sm text-[#ff9b9b]">{authError}</p>
-          ) : null}
+          )}
         </div>
-      ) : null}
+      )}
 
       <WalletSummary
         address={address}
@@ -194,14 +210,14 @@ export default function WalletPanel() {
         showConnectedWallet={showConnectedWallet}
       />
 
-      {unsupportedNetwork ? (
+      {unsupportedNetwork && (
         <p className="mt-3 text-sm text-[#ffd690]">
           Switch to Ethereum Mainnet for supported behavior.
         </p>
-      ) : null}
-      {balanceError ? (
+      )}
+      {balanceError && (
         <p className="mt-3 text-sm text-[#ff9b9b]">{balanceError.message}</p>
-      ) : null}
+      )}
       <WalletTokenList
         chainId={chainId}
         isTokensLoading={isTokensLoading}

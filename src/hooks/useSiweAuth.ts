@@ -37,7 +37,10 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
 
       setSession(data.authenticated && data.session ? data.session : null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to load authentication session.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to load authentication session.";
       setAuthError(message);
       setSession(null);
     } finally {
@@ -64,7 +67,10 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
         cache: "no-store",
       });
 
-      const nonceData = (await nonceResponse.json()) as { nonce?: string; error?: string };
+      const nonceData = (await nonceResponse.json()) as {
+        nonce?: string;
+        error?: string;
+      };
 
       if (!nonceResponse.ok || !nonceData.nonce) {
         throw new Error(nonceData.error ?? "Unable to request SIWE nonce.");
@@ -99,7 +105,8 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
       await refreshSession();
       return true;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "SIWE sign-in failed.";
+      const message =
+        error instanceof Error ? error.message : "SIWE sign-in failed.";
       setAuthError(message);
       return false;
     } finally {
@@ -121,7 +128,8 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
 
       await refreshSession();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to sign out.";
+      const message =
+        error instanceof Error ? error.message : "Unable to sign out.";
       setAuthError(message);
     }
   }, [refreshSession]);
