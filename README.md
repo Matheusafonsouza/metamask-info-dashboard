@@ -32,6 +32,17 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Ethereum Mainnet selected for supported behavior
 - `ALCHEMY_API_KEY` in `.env.local` for token balance lookup
 - `SIWE_SESSION_SECRET` in `.env.local` for secure SIWE session cookies
+- `NEXT_PUBLIC_MAINNET_RPC_URL` in `.env.local` for reliable client balance reads
+
+## Troubleshooting
+
+- If native balance fails with transport errors (for example `eth_call` fetch errors), set a stable public RPC in `.env.local`:
+
+```bash
+NEXT_PUBLIC_MAINNET_RPC_URL=https://ethereum.publicnode.com
+```
+
+- Restart `npm run dev` after changing environment variables.
 
 ## Tech Stack
 
