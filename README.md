@@ -237,3 +237,7 @@ Then restart dev server.
 - Add multi-chain support and chain switching UX.
 - Add transaction features (send native token / ERC-20 transfer).
 
+## Contributing
+
+See `CONTRIBUTING.md` for local workflow, coding conventions, and PR checklist.
+
