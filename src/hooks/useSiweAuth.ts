@@ -46,8 +46,14 @@ export function useSiweAuth({ address, chainId, enabled }: UseSiweAuthParams) {
   }, []);
 
   useEffect(() => {
+    if (!enabled || !address) {
+      setSession(null);
+      setIsSessionLoading(false);
+      return;
+    }
+
     void refreshSession();
-  }, [refreshSession]);
+  }, [address, enabled, refreshSession]);
 
   const signIn = useCallback(async () => {
     if (!enabled || !address || !chainId) {

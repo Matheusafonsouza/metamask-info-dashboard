@@ -64,15 +64,18 @@ export default function WalletPanel() {
   });
 
   const hasAutoPromptedSignInRef = useRef(false);
+  const suppressAutoSignInRef = useRef(false);
 
   useEffect(() => {
     if (!showConnectedWallet) {
       hasAutoPromptedSignInRef.current = false;
+      suppressAutoSignInRef.current = false;
       return;
     }
 
     if (
       hasAutoPromptedSignInRef.current ||
+      suppressAutoSignInRef.current ||
       isAuthenticated ||
       isAuthBusy ||
       chainId !== mainnet.id
@@ -149,15 +152,27 @@ export default function WalletPanel() {
         onConnect={() => {
           void handleConnect();
         }}
-        onDisconnect={() => disconnect()}
+        onDisconnect={() => {
+          suppressAutoSignInRef.current = true;
+
+          void (async () => {
+            try {
+              await signOut();
+            } finally {
+              disconnect();
+            }
+          })();
+        }}
         onRefresh={() => {
           refetch();
           void fetchTokens();
         }}
         onSignIn={() => {
+          suppressAutoSignInRef.current = false;
           void signIn();
         }}
         onSignOut={() => {
+          suppressAutoSignInRef.current = true;
           void signOut();
         }}
         showConnectedWallet={showConnectedWallet}
