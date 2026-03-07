@@ -6,6 +6,7 @@ import WalletActions from "@/components/wallet/WalletActions";
 import WalletSummary from "@/components/wallet/WalletSummary";
 import WalletTokenList from "@/components/wallet/WalletTokenList";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
+import { useSiweAuth } from "@/hooks/useSiweAuth";
 import { useWalletTokens } from "@/hooks/useWalletTokens";
 
 export default function WalletPanel() {
@@ -47,6 +48,23 @@ export default function WalletPanel() {
       ),
     },
   );
+
+  const {
+    authError,
+    isAuthenticated,
+    isBusy: isAuthBusy,
+    session,
+    signIn,
+    signOut,
+  } = useSiweAuth({
+    address,
+    chainId,
+    enabled: showConnectedWallet,
+  });
+
+  const signedInWithDifferentWallet =
+    Boolean(session?.address && address) &&
+    session?.address.toLowerCase() !== address?.toLowerCase();
 
   return (
     <section className="rounded-2xl border border-white/15 bg-[rgba(5,15,38,0.8)] p-6 backdrop-blur-sm max-[700px]:p-4">
@@ -92,6 +110,60 @@ export default function WalletPanel() {
       ) : null}
       {connectHint ? (
         <p className="mt-3 text-sm text-[#ffd690]">{connectHint}</p>
+      ) : null}
+
+      {showConnectedWallet ? (
+        <div className="mt-4 rounded-xl border border-white/15 bg-white/3 p-4">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-base font-semibold">Authentication</h3>
+            <span className="text-xs text-white/70">
+              {isAuthenticated ? "Signed In" : "Not Signed In"}
+            </span>
+          </div>
+
+          {signedInWithDifferentWallet ? (
+            <p className="mb-3 text-sm text-[#ffd690]">
+              Session belongs to another wallet. Sign out and sign in again with
+              the connected address.
+            </p>
+          ) : null}
+
+          {isAuthenticated ? (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-white/80">
+                Authenticated as <span className="font-mono">{session?.address}</span>
+              </p>
+              <button
+                className="cursor-pointer rounded-full border border-white/40 bg-transparent px-4 py-2 text-sm font-semibold text-white"
+                type="button"
+                disabled={isAuthBusy}
+                onClick={() => {
+                  void signOut();
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <button
+              className="cursor-pointer rounded-full border-0 bg-[#21c97f] px-4 py-2.5 text-[0.92rem] font-semibold text-[#03210f] disabled:cursor-not-allowed disabled:opacity-65"
+              type="button"
+              disabled={isAuthBusy || !showConnectedWallet || chainId !== mainnet.id}
+              onClick={() => {
+                void signIn();
+              }}
+            >
+              {isAuthBusy ? "Signing..." : "Sign In with Ethereum"}
+            </button>
+          )}
+
+          {chainId !== mainnet.id ? (
+            <p className="mt-3 text-sm text-[#ffd690]">
+              SIWE sign-in is enabled on Ethereum Mainnet only.
+            </p>
+          ) : null}
+          {authError ? <p className="mt-3 text-sm text-[#ff9b9b]">{authError}</p> : null}
+        </div>
       ) : null}
 
       <WalletSummary

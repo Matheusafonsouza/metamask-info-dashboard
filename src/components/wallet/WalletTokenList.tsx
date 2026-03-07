@@ -52,7 +52,7 @@ export default function WalletTokenList({
           {tokens.map((token) => (
             <li
               key={token.contractAddress}
-              className="grid grid-cols-[1fr_auto] gap-3 rounded-lg border border-white/10 bg-white/[0.04] p-3"
+              className="grid grid-cols-[1fr_auto] gap-3 rounded-lg border border-white/10 bg-white/4 p-3"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-white">
