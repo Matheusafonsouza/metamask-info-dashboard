@@ -66,12 +66,12 @@ It is designed to be small enough to understand quickly, while still covering re
 
 ```mermaid
 flowchart TD
-	UI[Wallet UI Components] --> Ctx[WalletContext]
-	Ctx --> Hooks[Wallet Hooks]
-	Hooks --> ClientApi[src/lib/api/*]
-	ClientApi --> Routes[/app/api routes]
-	Routes --> Ext[Alchemy RPC / SIWE verify]
-	Hooks --> Wagmi[wagmi + MetaMask]
+  UI["Wallet UI Components"] --> Ctx["WalletContext"]
+  Ctx --> Hooks["Wallet Hooks"]
+  Hooks --> ClientApi["src/lib/api/*"]
+  ClientApi --> Routes["/app/api routes"]
+  Routes --> Ext["Alchemy RPC / SIWE verify"]
+  Hooks --> Wagmi["wagmi + MetaMask"]
 ```
 
 ### SIWE flow
