@@ -89,10 +89,10 @@ export default function WalletPanel() {
     session?.address.toLowerCase() !== address?.toLowerCase();
 
   return (
-    <section className="rounded-2xl border border-white/20 bg-[linear-gradient(160deg,rgba(5,15,38,0.88),rgba(7,20,47,0.82))] p-6 shadow-[0_22px_50px_-28px_rgba(0,0,0,0.95)] backdrop-blur-sm max-[700px]:p-4">
-      <div className="mb-5 flex items-start justify-between gap-3">
+    <section className="rounded-2xl border border-white/20 bg-[linear-gradient(160deg,rgba(5,15,38,0.88),rgba(7,20,47,0.82))] p-4 shadow-[0_22px_50px_-28px_rgba(0,0,0,0.95)] backdrop-blur-sm sm:p-6">
+      <div className="mb-5 grid gap-2 sm:flex sm:items-start sm:justify-between sm:gap-3">
         <h2 className="mb-1 text-xl font-semibold">Wallet</h2>
-        <p className="max-w-[48ch] leading-6 text-white/80">
+        <p className="max-w-[48ch] text-[0.9rem] leading-6 text-white/80 sm:text-base">
           Connect MetaMask to read account and network details.
         </p>
       </div>
@@ -144,7 +144,7 @@ export default function WalletPanel() {
       ) : null}
 
       {showConnectedWallet ? (
-        <div className="mt-4 rounded-xl border border-white/15 bg-white/4 p-4 mb-4">
+        <div className="mt-4 mb-4 rounded-xl border border-white/15 bg-white/4 p-3 sm:p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-base font-semibold tracking-[0.02em]">
               Authentication
@@ -162,10 +162,10 @@ export default function WalletPanel() {
           ) : null}
 
           {isAuthenticated ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/3 px-3 py-2.5">
+            <div className="grid min-w-0 gap-2 rounded-lg border border-white/10 bg-white/3 px-3 py-2.5 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
               <p className="text-sm text-white/80">
                 Authenticated as{" "}
-                <span className="font-mono">{session?.address}</span>
+                <span className="font-mono break-all sm:break-normal">{session?.address}</span>
               </p>
             </div>
           ) : (

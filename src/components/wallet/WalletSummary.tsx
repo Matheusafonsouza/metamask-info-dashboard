@@ -35,12 +35,12 @@ export default function WalletSummary({
   }
 
   return (
-    <dl className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3">
+    <dl className="grid grid-cols-1 gap-2 sm:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] sm:gap-3">
       <div className="rounded-xl border border-white/15 bg-white/4 p-3 transition hover:bg-white/6">
         <dt className="mb-1.5 text-[0.75rem] tracking-[0.09em] text-white/72 uppercase">
           Address
         </dt>
-        <dd className="font-mono text-[0.95rem] text-white/95" title={address}>
+        <dd className="font-mono text-[0.9rem] text-white/95 sm:text-[0.95rem]" title={address}>
           {formatAddress(address)}
         </dd>
       </div>
@@ -48,7 +48,7 @@ export default function WalletSummary({
         <dt className="mb-1.5 text-[0.75rem] tracking-[0.09em] text-white/72 uppercase">
           Network
         </dt>
-        <dd className="font-mono text-[0.95rem] text-white/95">
+        <dd className="font-mono text-[0.9rem] text-white/95 sm:text-[0.95rem]">
           {chainName ?? "Unknown"} (ID: {chainId ?? "n/a"})
         </dd>
       </div>
@@ -56,7 +56,7 @@ export default function WalletSummary({
         <dt className="mb-1.5 text-[0.75rem] tracking-[0.09em] text-white/72 uppercase">
           Native Balance
         </dt>
-        <dd className="font-mono text-[0.95rem] text-white/95">
+        <dd className="font-mono text-[0.9rem] text-white/95 sm:text-[0.95rem]">
           {isBalanceLoading
             ? "Loading..."
             : balance
