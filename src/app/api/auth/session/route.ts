@@ -6,7 +6,10 @@ export async function GET(request: NextRequest) {
   const session = readSession(request);
 
   if (!session) {
-    return NextResponse.json<SessionResponse>({ authenticated: false }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json<SessionResponse>(
+      { authenticated: false },
+      { headers: { "Cache-Control": "no-store" } },
+    );
   }
 
   return NextResponse.json<SessionResponse>(

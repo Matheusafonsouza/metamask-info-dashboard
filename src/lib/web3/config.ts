@@ -5,12 +5,16 @@ import { mainnet } from "wagmi/chains";
 export const supportedChains = [mainnet] as const;
 
 const configuredMainnetRpc = process.env.NEXT_PUBLIC_MAINNET_RPC_URL?.trim();
+const configuredEthMainnetEndpoint =
+  process.env.NEXT_PUBLIC_ETH_MAINNET_ENDPOINT?.trim();
 const defaultMainnetRpc = "https://ethereum.publicnode.com";
 
 const mainnetRpcUrl =
-  configuredMainnetRpc && configuredMainnetRpc.length > 0
-    ? configuredMainnetRpc
-    : defaultMainnetRpc;
+  configuredEthMainnetEndpoint && configuredEthMainnetEndpoint.length > 0
+    ? configuredEthMainnetEndpoint
+    : configuredMainnetRpc && configuredMainnetRpc.length > 0
+      ? configuredMainnetRpc
+      : defaultMainnetRpc;
 
 export const wagmiConfig = createConfig({
   chains: supportedChains,
