@@ -1,16 +1,9 @@
 import { useMemo } from "react";
 import { mainnet } from "wagmi/chains";
+import { useWalletContext } from "@/components/wallet/WalletContext";
 import { formatContractAddress } from "@/lib/wallet/format";
 import { getTokenStatusMessage } from "@/lib/wallet/view-state";
 import type { WalletToken } from "@/types/wallet";
-
-type WalletTokenListProps = {
-  chainId?: number;
-  isTokensLoading: boolean;
-  showConnectedWallet: boolean;
-  tokens: WalletToken[];
-  tokensError: string | null;
-};
 
 type TokenRowProps = {
   token: WalletToken;
@@ -67,13 +60,15 @@ function TokenRow({ token }: TokenRowProps) {
   );
 }
 
-export default function WalletTokenList({
-  chainId,
-  isTokensLoading,
-  showConnectedWallet,
-  tokens,
-  tokensError,
-}: WalletTokenListProps) {
+export default function WalletTokenList() {
+  const {
+    chainId,
+    isTokensLoading,
+    showConnectedWallet,
+    tokens,
+    tokensError,
+  } = useWalletContext();
+
   const isMainnet = chainId === mainnet.id;
   const hasTokens = tokens.length > 0;
 

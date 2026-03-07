@@ -3,32 +3,18 @@ import {
   formatNetworkLabel,
   formatWalletAddress,
 } from "@/lib/wallet/format";
+import { useWalletContext } from "@/components/wallet/WalletContext";
 
-type BalanceData =
-  | {
-      symbol: string;
-      value: bigint;
-    }
-  | null
-  | undefined;
+export default function WalletSummary() {
+  const {
+    address,
+    balance,
+    chainId,
+    chainName,
+    isBalanceLoading,
+    showConnectedWallet,
+  } = useWalletContext();
 
-type WalletSummaryProps = {
-  address?: string;
-  balance: BalanceData;
-  chainId?: number;
-  chainName?: string;
-  isBalanceLoading: boolean;
-  showConnectedWallet: boolean;
-};
-
-export default function WalletSummary({
-  address,
-  balance,
-  chainId,
-  chainName,
-  isBalanceLoading,
-  showConnectedWallet,
-}: WalletSummaryProps) {
   const balanceText = formatNativeBalanceText(balance, isBalanceLoading);
   const networkLabel = formatNetworkLabel(chainName, chainId);
 

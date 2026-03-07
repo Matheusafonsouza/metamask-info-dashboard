@@ -1,37 +1,24 @@
 import { useMemo } from "react";
+import { useWalletContext } from "@/components/wallet/WalletContext";
 import { getWalletActionState } from "@/lib/wallet/view-state";
 
-type WalletActionsProps = {
-  connectDisabled: boolean;
-  isAuthenticated: boolean;
-  isAuthBusy: boolean;
-  isAwaitingWallet: boolean;
-  isMainnet: boolean;
-  isMounted: boolean;
-  isPending: boolean;
-  onConnect: () => void;
-  onDisconnect: () => void;
-  onRefresh: () => void;
-  onSignIn: () => void;
-  onSignOut: () => void;
-  showConnectedWallet: boolean;
-};
+export default function WalletActions() {
+  const {
+    connectDisabled,
+    isAuthenticated,
+    isAuthBusy,
+    isAwaitingWallet,
+    isMainnet,
+    isMounted,
+    isPending,
+    onConnect,
+    onDisconnect,
+    onRefresh,
+    onSignIn,
+    onSignOut,
+    showConnectedWallet,
+  } = useWalletContext();
 
-export default function WalletActions({
-  connectDisabled,
-  isAuthenticated,
-  isAuthBusy,
-  isAwaitingWallet,
-  isMainnet,
-  isMounted,
-  isPending,
-  onConnect,
-  onDisconnect,
-  onRefresh,
-  onSignIn,
-  onSignOut,
-  showConnectedWallet,
-}: WalletActionsProps) {
   const actionState = useMemo(
     () =>
       getWalletActionState({

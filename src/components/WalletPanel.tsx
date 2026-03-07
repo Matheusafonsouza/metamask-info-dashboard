@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { mainnet } from "wagmi/chains";
 import { useBalance } from "wagmi";
 import WalletActions from "@/components/wallet/WalletActions";
+import { WalletContextProvider } from "@/components/wallet/WalletContext";
 import WalletSummary from "@/components/wallet/WalletSummary";
 import WalletTokenList from "@/components/wallet/WalletTokenList";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
@@ -97,6 +98,85 @@ export default function WalletPanel() {
     authStatusLabel = "Signed In";
   }
 
+  const handleWalletConnect = useCallback(() => {
+    void handleConnect();
+  }, [handleConnect]);
+
+  const handleWalletDisconnect = useCallback(() => {
+    suppressAutoSignInRef.current = true;
+
+    void (async () => {
+      try {
+        await signOut();
+      } finally {
+        disconnect();
+      }
+    })();
+  }, [disconnect, signOut]);
+
+  const handleWalletRefresh = useCallback(() => {
+    refetch();
+    void fetchTokens();
+  }, [fetchTokens, refetch]);
+
+  const handleWalletSignIn = useCallback(() => {
+    suppressAutoSignInRef.current = false;
+    void signIn();
+  }, [signIn]);
+
+  const handleWalletSignOut = useCallback(() => {
+    suppressAutoSignInRef.current = true;
+    void signOut();
+  }, [signOut]);
+
+  const walletContextValue = useMemo(
+    () => ({
+      address,
+      balance,
+      chainId,
+      chainName: chain?.name,
+      connectDisabled,
+      isAuthenticated,
+      isAuthBusy,
+      isAwaitingWallet,
+      isBalanceLoading,
+      isMainnet: chainId === mainnet.id,
+      isMounted,
+      isPending,
+      isTokensLoading,
+      showConnectedWallet,
+      tokens,
+      tokensError,
+      onConnect: handleWalletConnect,
+      onDisconnect: handleWalletDisconnect,
+      onRefresh: handleWalletRefresh,
+      onSignIn: handleWalletSignIn,
+      onSignOut: handleWalletSignOut,
+    }),
+    [
+      address,
+      balance,
+      chain?.name,
+      chainId,
+      connectDisabled,
+      handleWalletConnect,
+      handleWalletDisconnect,
+      handleWalletRefresh,
+      handleWalletSignIn,
+      handleWalletSignOut,
+      isAuthenticated,
+      isAuthBusy,
+      isAwaitingWallet,
+      isBalanceLoading,
+      isMounted,
+      isPending,
+      isTokensLoading,
+      showConnectedWallet,
+      tokens,
+      tokensError,
+    ],
+  );
+
   const renderAuthBody = () => {
     if (isAuthenticated) {
       return (
@@ -141,105 +221,59 @@ export default function WalletPanel() {
         </div>
       )}
 
-      <WalletActions
-        connectDisabled={connectDisabled}
-        isAuthenticated={isAuthenticated}
-        isAuthBusy={isAuthBusy}
-        isAwaitingWallet={isAwaitingWallet}
-        isMainnet={chainId === mainnet.id}
-        isMounted={isMounted}
-        isPending={isPending}
-        onConnect={() => {
-          void handleConnect();
-        }}
-        onDisconnect={() => {
-          suppressAutoSignInRef.current = true;
+      <WalletContextProvider value={walletContextValue}>
+        <WalletActions />
 
-          void (async () => {
-            try {
-              await signOut();
-            } finally {
-              disconnect();
-            }
-          })();
-        }}
-        onRefresh={() => {
-          refetch();
-          void fetchTokens();
-        }}
-        onSignIn={() => {
-          suppressAutoSignInRef.current = false;
-          void signIn();
-        }}
-        onSignOut={() => {
-          suppressAutoSignInRef.current = true;
-          void signOut();
-        }}
-        showConnectedWallet={showConnectedWallet}
-      />
+        {connectError && (
+          <p className="mt-3 text-sm text-[#ff9b9b]">{connectError.message}</p>
+        )}
+        {connectHint && (
+          <p className="mt-3 text-sm text-[#ffd690]">{connectHint}</p>
+        )}
 
-      {connectError && (
-        <p className="mt-3 text-sm text-[#ff9b9b]">{connectError.message}</p>
-      )}
-      {connectHint && (
-        <p className="mt-3 text-sm text-[#ffd690]">{connectHint}</p>
-      )}
+        {showConnectedWallet && (
+          <div className="mt-4 mb-4 rounded-xl border border-white/15 bg-white/4 p-3 sm:p-4">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h3 className="text-base font-semibold tracking-[0.02em]">
+                Authentication
+              </h3>
+              <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[0.68rem] tracking-[0.08em] text-white/78 uppercase">
+                {authStatusLabel}
+              </span>
+            </div>
 
-      {showConnectedWallet && (
-        <div className="mt-4 mb-4 rounded-xl border border-white/15 bg-white/4 p-3 sm:p-4">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 className="text-base font-semibold tracking-[0.02em]">
-              Authentication
-            </h3>
-            <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[0.68rem] tracking-[0.08em] text-white/78 uppercase">
-              {authStatusLabel}
-            </span>
+            {signedInWithDifferentWallet && (
+              <p className="mb-3 text-sm text-[#ffd690]">
+                Session belongs to another wallet. Sign out and sign in again with
+                the connected address.
+              </p>
+            )}
+
+            {renderAuthBody()}
+
+            {chainId !== mainnet.id && (
+              <p className="mt-3 text-sm text-[#ffd690]">
+                SIWE sign-in is enabled on Ethereum Mainnet only.
+              </p>
+            )}
+            {authError && (
+              <p className="mt-3 text-sm text-[#ff9b9b]">{authError}</p>
+            )}
           </div>
+        )}
 
-          {signedInWithDifferentWallet && (
-            <p className="mb-3 text-sm text-[#ffd690]">
-              Session belongs to another wallet. Sign out and sign in again with
-              the connected address.
-            </p>
-          )}
+        <WalletSummary />
 
-          {renderAuthBody()}
-
-          {chainId !== mainnet.id && (
-            <p className="mt-3 text-sm text-[#ffd690]">
-              SIWE sign-in is enabled on Ethereum Mainnet only.
-            </p>
-          )}
-          {authError && (
-            <p className="mt-3 text-sm text-[#ff9b9b]">{authError}</p>
-          )}
-        </div>
-      )}
-
-      <WalletSummary
-        address={address}
-        balance={balance}
-        chainId={chainId}
-        chainName={chain?.name}
-        isBalanceLoading={isBalanceLoading}
-        showConnectedWallet={showConnectedWallet}
-      />
-
-      {unsupportedNetwork && (
-        <p className="mt-3 text-sm text-[#ffd690]">
-          Switch to Ethereum Mainnet for supported behavior.
-        </p>
-      )}
-      {balanceError && (
-        <p className="mt-3 text-sm text-[#ff9b9b]">{balanceError.message}</p>
-      )}
-      <WalletTokenList
-        chainId={chainId}
-        isTokensLoading={isTokensLoading}
-        showConnectedWallet={showConnectedWallet}
-        tokens={tokens}
-        tokensError={tokensError}
-      />
+        {unsupportedNetwork && (
+          <p className="mt-3 text-sm text-[#ffd690]">
+            Switch to Ethereum Mainnet for supported behavior.
+          </p>
+        )}
+        {balanceError && (
+          <p className="mt-3 text-sm text-[#ff9b9b]">{balanceError.message}</p>
+        )}
+        <WalletTokenList />
+      </WalletContextProvider>
     </section>
   );
 }
