@@ -29,7 +29,10 @@ export function useWalletTokens({ address, enabled }: UseWalletTokensParams) {
         cache: "no-store",
       });
 
-      const data = (await response.json()) as { tokens?: WalletToken[]; error?: string };
+      const data = (await response.json()) as {
+        tokens?: WalletToken[];
+        error?: string;
+      };
 
       if (!response.ok) {
         throw new Error(data.error ?? "Unable to fetch token balances.");
@@ -37,7 +40,10 @@ export function useWalletTokens({ address, enabled }: UseWalletTokensParams) {
 
       setTokens(Array.isArray(data.tokens) ? data.tokens : []);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to fetch token balances.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to fetch token balances.";
       setTokens([]);
       setTokensError(message);
     } finally {

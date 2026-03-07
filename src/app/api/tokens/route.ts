@@ -38,19 +38,22 @@ async function callAlchemy<T>(method: string, params: unknown[]) {
     throw new Error("Missing ALCHEMY_API_KEY in environment.");
   }
 
-  const response = await fetch(`https://eth-mainnet.g.alchemy.com/v2/${apiKey}`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
+  const response = await fetch(
+    `https://eth-mainnet.g.alchemy.com/v2/${apiKey}`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        id: 1,
+        jsonrpc: "2.0",
+        method,
+        params,
+      }),
+      cache: "no-store",
     },
-    body: JSON.stringify({
-      id: 1,
-      jsonrpc: "2.0",
-      method,
-      params,
-    }),
-    cache: "no-store",
-  });
+  );
 
   if (!response.ok) {
     throw new Error(`Alchemy request failed with status ${response.status}.`);
@@ -72,25 +75,37 @@ async function callAlchemy<T>(method: string, params: unknown[]) {
 function formatTokenBalance(rawHexBalance: string, decimals: number) {
   const raw = BigInt(rawHexBalance);
   const formatted = formatUnits(raw, decimals);
-  return Number(formatted) >= 1 ? Number(formatted).toLocaleString(undefined, { maximumFractionDigits: 6 }) : formatted;
+  return Number(formatted) >= 1
+    ? Number(formatted).toLocaleString(undefined, { maximumFractionDigits: 6 })
+    : formatted;
 }
 
 export async function GET(request: NextRequest) {
   const address = request.nextUrl.searchParams.get("address");
 
   if (!address || !isAddress(address)) {
-    return NextResponse.json({ error: "A valid wallet address is required." }, { status: 400 });
+    return NextResponse.json(
+      { error: "A valid wallet address is required." },
+      { status: 400 },
+    );
   }
 
   try {
-    const tokenBalancesResult = await callAlchemy<{ tokenBalances: AlchemyTokenBalance[] }>("alchemy_getTokenBalances", [address, "erc20"]);
+    const tokenBalancesResult = await callAlchemy<{
+      tokenBalances: AlchemyTokenBalance[];
+    }>("alchemy_getTokenBalances", [address, "erc20"]);
 
-    const nonZeroBalances = tokenBalancesResult.tokenBalances.filter((item) => !ZERO_HEX_BALANCES.has(item.tokenBalance.toLowerCase()));
+    const nonZeroBalances = tokenBalancesResult.tokenBalances.filter(
+      (item) => !ZERO_HEX_BALANCES.has(item.tokenBalance.toLowerCase()),
+    );
 
     const metadata = await Promise.all(
       nonZeroBalances.map(async (item) => {
         try {
-          return await callAlchemy<AlchemyTokenMetadata>("alchemy_getTokenMetadata", [item.contractAddress]);
+          return await callAlchemy<AlchemyTokenMetadata>(
+            "alchemy_getTokenMetadata",
+            [item.contractAddress],
+          );
         } catch {
           return null;
         }
@@ -113,7 +128,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ tokens });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to load token balances.";
+    const message =
+      error instanceof Error ? error.message : "Unable to load token balances.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

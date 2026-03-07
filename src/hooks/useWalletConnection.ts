@@ -6,7 +6,12 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 export function useWalletConnection() {
   const { address, chain, chainId, isConnected } = useAccount();
-  const { connectAsync, connectors, error: connectError, isPending } = useConnect();
+  const {
+    connectAsync,
+    connectors,
+    error: connectError,
+    isPending,
+  } = useConnect();
   const { disconnect } = useDisconnect();
 
   const [connectHint, setConnectHint] = useState<string | null>(null);
@@ -22,18 +27,32 @@ export function useWalletConnection() {
 
   const metaMaskConnector = useMemo(
     () =>
-      connectors.find((connector) => connector.name.toLowerCase().includes("metamask")) ??
+      connectors.find((connector) =>
+        connector.name.toLowerCase().includes("metamask"),
+      ) ??
       connectors.find((connector) => connector.type === "injected") ??
       connectors[0],
     [connectors],
   );
 
   const hasMetaMask =
-    isMounted && typeof window !== "undefined" && Boolean((window as Window & { ethereum?: { isMetaMask?: boolean } }).ethereum?.isMetaMask);
+    isMounted &&
+    typeof window !== "undefined" &&
+    Boolean(
+      (window as Window & { ethereum?: { isMetaMask?: boolean } }).ethereum
+        ?.isMetaMask,
+    );
 
   const showConnectedWallet = isMounted && isConnected;
-  const unsupportedNetwork = Boolean(showConnectedWallet && chainId && chainId !== mainnet.id);
-  const connectDisabled = !isMounted || isPending || isAwaitingWallet || !metaMaskConnector || !hasMetaMask;
+  const unsupportedNetwork = Boolean(
+    showConnectedWallet && chainId && chainId !== mainnet.id,
+  );
+  const connectDisabled =
+    !isMounted ||
+    isPending ||
+    isAwaitingWallet ||
+    !metaMaskConnector ||
+    !hasMetaMask;
 
   const handleConnect = useCallback(async () => {
     if (!metaMaskConnector || connectDisabled) {
@@ -49,7 +68,9 @@ export function useWalletConnection() {
       const err = error as { code?: number };
 
       if (err?.code === -32002) {
-        setConnectHint("A MetaMask permission request is already open. Open MetaMask and approve or reject it first.");
+        setConnectHint(
+          "A MetaMask permission request is already open. Open MetaMask and approve or reject it first.",
+        );
       } else if (err?.code === 4001) {
         setConnectHint("Connection was rejected in MetaMask.");
       }
