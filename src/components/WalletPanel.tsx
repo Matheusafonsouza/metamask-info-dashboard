@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { mainnet } from "wagmi/chains";
 import { useBalance } from "wagmi";
 import WalletActions from "@/components/wallet/WalletActions";
@@ -62,6 +63,22 @@ export default function WalletPanel() {
     enabled: showConnectedWallet,
   });
 
+  const hasAutoPromptedSignInRef = useRef(false);
+
+  useEffect(() => {
+    if (!showConnectedWallet) {
+      hasAutoPromptedSignInRef.current = false;
+      return;
+    }
+
+    if (hasAutoPromptedSignInRef.current || isAuthenticated || isAuthBusy || chainId !== mainnet.id) {
+      return;
+    }
+
+    hasAutoPromptedSignInRef.current = true;
+    void signIn();
+  }, [chainId, isAuthBusy, isAuthenticated, showConnectedWallet, signIn]);
+
   const signedInWithDifferentWallet =
     Boolean(session?.address && address) &&
     session?.address.toLowerCase() !== address?.toLowerCase();
@@ -91,7 +108,10 @@ export default function WalletPanel() {
 
       <WalletActions
         connectDisabled={connectDisabled}
+        isAuthenticated={isAuthenticated}
+        isAuthBusy={isAuthBusy}
         isAwaitingWallet={isAwaitingWallet}
+        isMainnet={chainId === mainnet.id}
         isMounted={isMounted}
         isPending={isPending}
         onConnect={() => {
@@ -101,6 +121,12 @@ export default function WalletPanel() {
         onRefresh={() => {
           refetch();
           void fetchTokens();
+        }}
+        onSignIn={() => {
+          void signIn();
+        }}
+        onSignOut={() => {
+          void signOut();
         }}
         showConnectedWallet={showConnectedWallet}
       />
@@ -133,28 +159,9 @@ export default function WalletPanel() {
               <p className="text-sm text-white/80">
                 Authenticated as <span className="font-mono">{session?.address}</span>
               </p>
-              <button
-                className="cursor-pointer rounded-full border border-white/40 bg-transparent px-4 py-2 text-sm font-semibold text-white"
-                type="button"
-                disabled={isAuthBusy}
-                onClick={() => {
-                  void signOut();
-                }}
-              >
-                Sign Out
-              </button>
             </div>
           ) : (
-            <button
-              className="cursor-pointer rounded-full border-0 bg-[#21c97f] px-4 py-2.5 text-[0.92rem] font-semibold text-[#03210f] disabled:cursor-not-allowed disabled:opacity-65"
-              type="button"
-              disabled={isAuthBusy || !showConnectedWallet || chainId !== mainnet.id}
-              onClick={() => {
-                void signIn();
-              }}
-            >
-              {isAuthBusy ? "Signing..." : "Sign In with Ethereum"}
-            </button>
+            <p className="text-sm text-white/80">Sign the SIWE message to enable authenticated features.</p>
           )}
 
           {chainId !== mainnet.id ? (
